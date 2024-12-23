@@ -9,6 +9,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 
 /**
@@ -21,7 +22,7 @@ public class OSUtils {
     private static final SystemInfo SI = new SystemInfo();
     public static final String TWO_DECIMAL = "0.00";
 
-    private static HardwareAbstractionLayer hal = SI.getHardware();
+    public static HardwareAbstractionLayer hal = SI.getHardware();
 
     private OSUtils() {
     }
@@ -96,7 +97,12 @@ public class OSUtils {
      * @return cpu usage
      */
     public static double cpuUsage() {
-        CentralProcessor processor = hal.getProcessor();
+        CentralProcessor processor;
+        try {
+            processor = hal.getProcessor();
+        } catch (Throwable e) {
+            return 0.0;
+        }
         double cpuUsage = processor.getSystemCpuLoad();
 
         DecimalFormat df = new DecimalFormat(TWO_DECIMAL);

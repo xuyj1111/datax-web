@@ -9,6 +9,7 @@ import com.wugui.datatx.core.util.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,7 +42,19 @@ public class ExecutorRegistryThread {
             // registry
             while (!toStop) {
                 try {
-                    RegistryParam registryParam = new RegistryParam(RegistryConfig.RegistType.EXECUTOR.name(), appName, address, OSUtils.cpuUsage(),OSUtils.memoryUsage(),OSUtils.loadAverage());
+                    double cpuUsage;
+                    double memoryUsage;
+                    double loadAverage;
+                    try {
+                        cpuUsage = OSUtils.cpuUsage();
+                        memoryUsage = OSUtils.memoryUsage();
+                        loadAverage = OSUtils.loadAverage();
+                    } catch (Throwable e) {
+                        cpuUsage = 0.0;
+                        memoryUsage = 0.0;
+                        loadAverage = 0.0;
+                    }
+                    RegistryParam registryParam = new RegistryParam(RegistryConfig.RegistType.EXECUTOR.name(), appName, address, cpuUsage, memoryUsage, loadAverage);
                     for (AdminBiz adminBiz: JobExecutor.getAdminBizList()) {
                         try {
                             ReturnT<String> registryResult = adminBiz.registry(registryParam);
